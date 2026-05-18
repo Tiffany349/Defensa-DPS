@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Conecta Voluntad",
+    "slug": "conecta-voluntad",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": [
+      "android"
+    ],
+    "android": {
+      "package": "com.conectavoluntad.app"
+    },
+    "plugins": [
+      "@react-native-community/datetimepicker"
+    ]
+  }
+}
