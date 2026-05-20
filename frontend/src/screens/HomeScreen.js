@@ -14,7 +14,7 @@ import axios from 'axios';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API = 'http://192.168.0.13:3000/api';
+const API = 'http://192.168.1.99:3000/api';
 
 export default function HomeScreen({ navigation }) {
 
@@ -49,12 +49,13 @@ export default function HomeScreen({ navigation }) {
 
     try {
 
+
       const response = await axios.get(
         `${API}/activities`
       );
 
       setActivities(response.data);
-
+     
     } catch (error) {
 
       Alert.alert(

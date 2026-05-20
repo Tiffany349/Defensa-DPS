@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-
+import {
+  enviarNotificacion
+} from '../services/notifications';
 import {
   View,
   Text,
@@ -39,7 +41,7 @@ export default function LoginScreen({ navigation }) {
       console.log('INTENTANDO LOGIN');
 
       const response = await axios.post(
-        'http://192.168.0.13:3000/api/auth/login',
+        'http://192.168.1.99:3000/api/auth/login',
         {
           correo: correo.trim(),
           password
@@ -56,6 +58,11 @@ export default function LoginScreen({ navigation }) {
       await AsyncStorage.setItem(
         'usuario',
         JSON.stringify(usuario)
+      );
+
+      await enviarNotificacion(
+        'Inicio de sesión',
+        'Has iniciado sesión correctamente'
       );
 
       if (usuario.rol === 'admin') {

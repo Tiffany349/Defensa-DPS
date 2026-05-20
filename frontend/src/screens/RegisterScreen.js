@@ -12,7 +12,7 @@ import {
 
 import axios from 'axios';
 
-const API = 'http://192.168.0.13:3000/api';
+const API = 'http://192.168.1.99:3000/api';
 
 export default function RegisterScreen({ navigation }) {
 

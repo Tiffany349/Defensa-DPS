@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 
 import axios from 'axios';
-
+import {
+  enviarNotificacion
+} from '../services/notifications';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const API = 'http://192.168.0.13:3000/api';
+const API = 'http://192.168.1.99:3000/api';
 
 export default function CreateActivityScreen({ navigation }) {
 
@@ -72,9 +74,9 @@ export default function CreateActivityScreen({ navigation }) {
         }
       );
 
-      Alert.alert(
-        'Éxito',
-        'Actividad creada correctamente'
+      await enviarNotificacion(
+        'Actividad creada',
+        'La actividad ha sido creada correctamente'
       );
 
       navigation.goBack();
