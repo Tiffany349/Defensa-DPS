@@ -1,36 +1,87 @@
 const { Activity } = require("../models");
 
-const createActivity = async (req, res) => {
-  try {
-    const activity = await Activity.create(req.body);
+const crearActividad = async (req, res) => {
 
-    res.status(201).json({
-      message: "Actividad creada",
-      activity
+  try {
+
+    const {
+      titulo,
+      descripcion,
+      fecha,
+      horas,
+      cupos,
+      ubicacion
+    } = req.body;
+
+    if (
+      !titulo ||
+      !descripcion ||
+      !fecha ||
+      !horas ||
+      !cupos ||
+      !ubicacion
+    ) {
+
+      return res.status(400).json({
+        message: "Todos los campos son obligatorios"
+      });
+    }
+
+    if (horas <= 0) {
+
+      return res.status(400).json({
+        message: "Las horas deben ser mayores a 0"
+      });
+    }
+
+    if (cupos <= 0) {
+
+      return res.status(400).json({
+        message: "Los cupos deben ser mayores a 0"
+      });
+    }
+
+    const actividad = await Activity.create({
+      titulo,
+      descripcion,
+      fecha,
+      horas,
+      cupos,
+      ubicacion
     });
 
+    res.status(201).json(actividad);
+
   } catch (error) {
+
     res.status(500).json({
       message: "Error al crear actividad"
     });
+
   }
 };
 
-const getActivities = async (req, res) => {
-  try {
-    const activities = await Activity.findAll();
+const obtenerActividades = async (req, res) => {
 
-    res.json(activities);
+  try {
+
+    const actividades = await Activity.findAll();
+
+    res.json(actividades);
 
   } catch (error) {
+
     res.status(500).json({
       message: "Error al obtener actividades"
     });
+
   }
 };
 
-const deleteActivity = async (req, res) => {
+const eliminarActividad = async (req, res) => {
+
   try {
+
     const { id } = req.params;
 
     await Activity.destroy({
@@ -42,14 +93,16 @@ const deleteActivity = async (req, res) => {
     });
 
   } catch (error) {
+
     res.status(500).json({
       message: "Error al eliminar actividad"
     });
+
   }
 };
 
 module.exports = {
-  createActivity,
-  getActivities,
-  deleteActivity
+  crearActividad,
+  obtenerActividades,
+  eliminarActividad
 };

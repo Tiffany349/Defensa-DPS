@@ -1,24 +1,67 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+
 import {
   View,
   Text,
   TextInput,
-  Button,
+  TouchableOpacity,
   StyleSheet,
   Alert
 } from 'react-native';
 
 import axios from 'axios';
 
+const API = 'http://192.168.0.13:3000/api';
+
 export default function RegisterScreen({ navigation }) {
+
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
-  const registrarUsuario = async () => {
+  const registrar = async () => {
+
+    if (
+      !nombre.trim() ||
+      !correo.trim() ||
+      !password.trim()
+    ) {
+
+      Alert.alert(
+        'Error',
+        'Todos los campos son obligatorios'
+      );
+
+      return;
+    }
+
+    const regexCorreo =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!regexCorreo.test(correo)) {
+
+      Alert.alert(
+        'Error',
+        'Correo inválido'
+      );
+
+      return;
+    }
+
+    if (password.length < 6) {
+
+      Alert.alert(
+        'Error',
+        'La contraseña debe tener mínimo 6 caracteres'
+      );
+
+      return;
+    }
+
     try {
-      const response = await axios.post(
-        'http://192.168.0.13:3000/api/auth/register',
+
+      await axios.post(
+        `${API}/auth/register`,
         {
           nombre,
           correo,
@@ -26,66 +69,105 @@ export default function RegisterScreen({ navigation }) {
         }
       );
 
-      Alert.alert('Éxito', response.data.message);
+      Alert.alert(
+        'Éxito',
+        'Usuario registrado'
+      );
 
-      navigation.navigate('Login');
+      navigation.goBack();
 
     } catch (error) {
+
       Alert.alert(
         'Error',
-        error.response?.data?.message || 'No se pudo registrar'
+        error.response?.data?.message ||
+        'No se pudo registrar'
       );
+
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Registro</Text>
+
+      <Text style={styles.title}>
+        Registro
+      </Text>
 
       <TextInput
-        placeholder="Nombre"
         style={styles.input}
+        placeholder="Nombre"
         value={nombre}
         onChangeText={setNombre}
       />
 
       <TextInput
-        placeholder="Correo"
         style={styles.input}
+        placeholder="Correo"
         value={correo}
         onChangeText={setCorreo}
       />
 
       <TextInput
+        style={styles.input}
         placeholder="Contraseña"
         secureTextEntry
-        style={styles.input}
         value={password}
         onChangeText={setPassword}
       />
 
-      <Button
-        title="Registrarse"
-        onPress={registrarUsuario}
-      />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={registrar}
+      >
+
+        <Text style={styles.buttonText}>
+          Registrarse
+        </Text>
+
+      </TouchableOpacity>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20
+    padding: 20,
+    backgroundColor: '#F8FAFC'
   },
+
   title: {
-    fontSize: 28,
-    marginBottom: 20,
+    fontSize: 30,
+    fontWeight: 'bold',
+    color: '#0057B8',
+    marginBottom: 30,
     textAlign: 'center'
   },
+
   input: {
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    padding: 10,
+    borderColor: '#CBD5E1',
+    padding: 15,
+    borderRadius: 12,
     marginBottom: 15
+  },
+
+  button: {
+    backgroundColor: '#0057B8',
+    padding: 16,
+    borderRadius: 12
+  },
+
+  buttonText: {
+    color: '#FFFFFF',
+    textAlign: 'center',
+    fontWeight: 'bold',
+    fontSize: 16
   }
+
 });

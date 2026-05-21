@@ -1,27 +1,55 @@
 import React from 'react';
+
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView
+  Alert
 } from 'react-native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export default function AdminScreen({ navigation }) {
+
+  const cerrarSesion = async () => {
+
+    try {
+
+      await AsyncStorage.removeItem('usuario');
+
+      navigation.replace('Login');
+
+    } catch (error) {
+
+      Alert.alert(
+        'Error',
+        'No se pudo cerrar sesión'
+      );
+
+    }
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles.container}>
+
+      <View style={styles.headerContainer}>
+
         <Text style={styles.title}>
           Panel Administrador
         </Text>
 
-        <Text style={styles.subtitle}>
-          Programa Oportunidades
-        </Text>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={cerrarSesion}
+        >
 
-        <Text style={styles.foundation}>
-          Fundación Gloria de Kriete
-        </Text>
+          <Text style={styles.logoutText}>
+            Cerrar sesión
+          </Text>
+
+        </TouchableOpacity>
+
       </View>
 
       <TouchableOpacity
@@ -30,9 +58,11 @@ export default function AdminScreen({ navigation }) {
           navigation.navigate('CrearActividad')
         }
       >
+
         <Text style={styles.buttonText}>
           Crear actividad
         </Text>
+
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -41,9 +71,11 @@ export default function AdminScreen({ navigation }) {
           navigation.navigate('Gestionar')
         }
       >
+
         <Text style={styles.buttonText}>
           Gestionar actividades
         </Text>
+
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -52,92 +84,65 @@ export default function AdminScreen({ navigation }) {
           navigation.navigate('Inscritos')
         }
       >
+
         <Text style={styles.buttonText}>
-          Ver voluntarios inscritos
+          Ver inscritos
         </Text>
+
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() =>
-          navigation.navigate('Horas')
-        }
-      >
-        <Text style={styles.buttonText}>
-          Horas de vinculación
-        </Text>
-      </TouchableOpacity>
-
-      <View style={styles.infoCard}>
-        <Text style={styles.infoTitle}>
-          Gestión administrativa
-        </Text>
-
-        <Text style={styles.infoText}>
-          Desde aquí podrás gestionar
-          actividades, validar participación
-          y controlar horas de vinculación
-          estudiantil.
-        </Text>
-      </View>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
     padding: 20
   },
-  header: {
+
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 30
   },
+
   title: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#0057B8'
+    color: '#0057B8',
+    flex: 1
   },
-  subtitle: {
-    fontSize: 20,
-    color: '#00AEEF',
-    marginTop: 8
+
+  logoutButton: {
+    backgroundColor: '#DC2626',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginLeft: 10
   },
-  foundation: {
-    fontSize: 16,
-    color: '#F9B233',
-    fontWeight: '600',
-    marginTop: 5
+
+  logoutText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14
   },
+
   button: {
     backgroundColor: '#0057B8',
     padding: 18,
-    borderRadius: 15,
-    marginBottom: 15,
-    elevation: 4
+    borderRadius: 16,
+    marginBottom: 18
   },
+
   buttonText: {
     color: '#FFFFFF',
     textAlign: 'center',
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  infoCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 18,
-    marginTop: 25,
-    elevation: 3
-  },
-  infoTitle: {
-    fontSize: 18,
     fontWeight: 'bold',
-    color: '#0057B8',
-    marginBottom: 10
-  },
-  infoText: {
-    fontSize: 15,
-    color: '#334155',
-    lineHeight: 22
+    fontSize: 18
   }
+
 });

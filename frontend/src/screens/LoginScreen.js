@@ -20,54 +20,82 @@ export default function LoginScreen({ navigation }) {
 
   const iniciarSesion = async () => {
 
+    if (
+      !correo.trim() ||
+      !password.trim()
+    ) {
+
+      Alert.alert(
+        'Error',
+        'Debes completar todos los campos'
+      );
+
+      return;
+    }
+
+    const regexCorreo =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!regexCorreo.test(correo.trim())) {
+
+      Alert.alert(
+        'Error',
+        'Correo inválido'
+      );
+
+      return;
+    }
+
+    if (password.length < 6) {
+
+      Alert.alert(
+        'Error',
+        'La contraseña debe tener mínimo 6 caracteres'
+      );
+
+      return;
+    }
+
     try {
 
-      console.log("INTENTANDO LOGIN");
+      console.log('INTENTANDO LOGIN');
 
       const response = await axios.post(
         'http://192.168.0.13:3000/api/auth/login',
         {
           correo: correo.trim(),
-          password: password.trim()
+          password
         }
       );
 
-      console.log("RESPUESTA LOGIN:", response.data);
+      console.log(
+        'RESPUESTA LOGIN:',
+        response.data
+      );
 
       const usuario = response.data.usuario;
-
-      if (!usuario) {
-
-        Alert.alert(
-          'Error',
-          'No llegó el usuario'
-        );
-
-        return;
-      }
-
-      await AsyncStorage.removeItem('usuario');
 
       await AsyncStorage.setItem(
         'usuario',
         JSON.stringify(usuario)
       );
 
-      console.log("USUARIO GUARDADO:", usuario);
-
       if (usuario.rol === 'admin') {
 
-        navigation.navigate('Admin');
+        navigation.replace('Admin');
 
       } else {
 
-        navigation.navigate('Home');
+        navigation.replace('Home');
 
       }
 
     } catch (error) {
 
-      console.log("ERROR LOGIN:", error);
+      console.log(
+        'ERROR LOGIN:',
+        error
+      );
 
       Alert.alert(
         'Error',

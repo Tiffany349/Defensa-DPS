@@ -16,12 +16,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API = 'http://192.168.0.13:3000/api';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
 
   const [activities, setActivities] = useState([]);
   const [inscripciones, setInscripciones] = useState([]);
   const [horas, setHoras] = useState([]);
-  const [usuario, setUsuario] = useState(null);
+  const [usuario_id, setUsuarioId] = useState(null);
 
   const obtenerUsuario = async () => {
 
@@ -32,18 +32,34 @@ export default function HomeScreen() {
 
       if (usuarioGuardado) {
 
-        const usuarioParseado =
+        const usuario =
           JSON.parse(usuarioGuardado);
 
-        console.log("USUARIO ACTUAL:", usuarioParseado);
-
-        setUsuario(usuarioParseado);
+        setUsuarioId(usuario.id);
 
       }
 
     } catch (error) {
 
       console.log(error);
+
+    }
+  };
+
+  const cerrarSesion = async () => {
+
+    try {
+
+      await AsyncStorage.removeItem('usuario');
+
+      navigation.replace('Login');
+
+    } catch (error) {
+
+      Alert.alert(
+        'Error',
+        'No se pudo cerrar sesión'
+      );
 
     }
   };
@@ -70,8 +86,6 @@ export default function HomeScreen() {
 
   const obtenerInscripciones = async () => {
 
-    if (!usuario) return;
-
     try {
 
       const response = await axios.get(
@@ -79,7 +93,7 @@ export default function HomeScreen() {
       );
 
       const misInscripciones = response.data.filter(
-        (item) => item.usuario_id === usuario.id
+        (item) => item.usuario_id === usuario_id
       );
 
       setInscripciones(misInscripciones);
@@ -93,12 +107,10 @@ export default function HomeScreen() {
 
   const obtenerHoras = async () => {
 
-    if (!usuario) return;
-
     try {
 
       const response = await axios.get(
-        `${API}/horas/${usuario.id}`
+        `${API}/horas/${usuario_id}`
       );
 
       setHoras(response.data);
@@ -117,7 +129,7 @@ export default function HomeScreen() {
       await axios.post(
         `${API}/inscriptions`,
         {
-          usuario_id: usuario.id,
+          usuario_id,
           actividad_id
         }
       );
@@ -173,7 +185,7 @@ export default function HomeScreen() {
 
   useEffect(() => {
 
-    if (usuario) {
+    if (usuario_id) {
 
       obtenerActividades();
       obtenerInscripciones();
@@ -181,7 +193,7 @@ export default function HomeScreen() {
 
     }
 
-  }, [usuario]);
+  }, [usuario_id]);
 
   const totalHoras = horas.reduce(
     (acc, item) => acc + item.horas,
@@ -191,9 +203,24 @@ export default function HomeScreen() {
   return (
     <ScrollView style={styles.container}>
 
-      <Text style={styles.title}>
-        Bienvenido {usuario?.nombre}
-      </Text>
+      <View style={styles.headerContainer}>
+
+        <Text style={styles.title}>
+          Actividades Disponibles
+        </Text>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={cerrarSesion}
+        >
+
+          <Text style={styles.logoutText}>
+            Cerrar sesión
+          </Text>
+
+        </TouchableOpacity>
+
+      </View>
 
       <View style={styles.hoursCard}>
 
@@ -289,11 +316,32 @@ const styles = StyleSheet.create({
     padding: 20
   },
 
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20
+  },
+
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#0057B8',
-    marginBottom: 20
+    flex: 1
+  },
+
+  logoutButton: {
+    backgroundColor: '#DC2626',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 12,
+    marginLeft: 10
+  },
+
+  logoutText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14
   },
 
   hoursCard: {
