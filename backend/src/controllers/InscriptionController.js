@@ -30,6 +30,8 @@ const inscribirse = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: "Error al inscribirse"
     });
@@ -45,6 +47,8 @@ const obtenerInscritos = async (req, res) => {
     res.json(inscritos);
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: "Error al obtener inscritos"
     });
@@ -59,11 +63,18 @@ const validarHoras = async (req, res) => {
       include: [Activity]
     });
 
+    if (!inscripcion) {
+      return res.status(404).json({
+        message: "Inscripción no encontrada"
+      });
+    }
+
     inscripcion.estado = "completado";
     await inscripcion.save();
 
     await SocialHours.create({
       usuario_id: inscripcion.usuario_id,
+      actividad_id: inscripcion.actividad_id,
       horas: inscripcion.Activity.horas,
       fecha: new Date()
     });
@@ -73,6 +84,8 @@ const validarHoras = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: "Error al validar"
     });
@@ -92,6 +105,8 @@ const cancelarInscripcion = async (req, res) => {
     });
 
   } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       message: "Error al cancelar"
     });

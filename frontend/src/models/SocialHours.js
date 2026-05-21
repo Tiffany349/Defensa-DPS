@@ -1,175 +1,176 @@
-import React, { useEffect, useState } from "react";
+import React, {
+  useEffect,
+  useState
+} from "react";
+
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
-  ActivityIndicator,
+  ActivityIndicator
 } from "react-native";
+
 import axios from "axios";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = "http://192.168.0.13:3000/api";
 
 export default function SocialHours() {
+
   const [hours, setHours] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const getHours = async () => {
+
+  const obtenerHoras = async () => {
     try {
-      const response = await axios.get(`${API_URL}/horas`);
+
+      const response = await axios.get(
+        `${API_URL}/horas/${usuario_id}`
+      );
+
       setHours(response.data);
+
     } catch (error) {
-      console.log("Error al cargar horas:", error);
+      console.log(error);
+
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    getHours();
+    obtenerHoras();
   }, []);
 
-  const totalHours = hours.reduce((sum, item) => sum + item.horas, 0);
+  const totalHoras = hours.reduce(
+    (acc, item) => acc + item.horas,
+    0
+  );
 
   if (loading) {
     return (
       <View style={styles.loader}>
-        <ActivityIndicator size="large" color="#0057B8" />
-        <Text style={styles.loadingText}>Cargando horas de vinculación...</Text>
+        <ActivityIndicator
+          size="large"
+          color="#0057B8"
+        />
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Conecta Voluntad</Text>
 
-      <View style={styles.headerCard}>
-        <Text style={styles.program}>Programa Oportunidades</Text>
-        <Text style={styles.foundation}>Fundación Gloria de Kriete</Text>
-
-        <Text style={styles.totalLabel}>Horas acumuladas</Text>
-        <Text style={styles.totalHours}>{totalHours}</Text>
-      </View>
-
-      <Text style={styles.sectionTitle}>
-        Historial de Vinculación
+      <Text style={styles.title}>
+        Mis Horas de Vinculación
       </Text>
+
+      <View style={styles.cardResumen}>
+        <Text style={styles.programa}>
+          Programa Oportunidades
+        </Text>
+
+        <Text style={styles.fundacion}>
+          Fundación Gloria de Kriete
+        </Text>
+
+        <Text style={styles.total}>
+          {totalHoras} horas acumuladas
+        </Text>
+      </View>
 
       <FlatList
         data={hours}
         keyExtractor={(item) => item.id.toString()}
-        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <View style={styles.item}>
-            <Text style={styles.activity}>
-              {item.actividad || "Actividad registrada"}
+          <View style={styles.card}>
+
+            <Text style={styles.actividad}>
+              {item.Activity?.titulo}
             </Text>
 
-            <Text style={styles.hours}>
-              {item.horas} horas
+            <Text style={styles.text}>
+              Horas: {item.horas}
             </Text>
 
-            <Text style={styles.date}>
-              {new Date(item.fecha).toLocaleDateString()}
+            <Text style={styles.text}>
+              Fecha:
+              {" "}
+              {new Date(item.fecha)
+                .toLocaleDateString()}
             </Text>
+
           </View>
         )}
       />
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: "#F8FAFC",
-    padding: 20,
+    padding: 20
   },
 
   loader: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-  },
-
-  loadingText: {
-    marginTop: 10,
-    color: "#0057B8",
-    fontWeight: "600",
+    alignItems: "center"
   },
 
   title: {
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#0057B8",
-    textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 20
   },
 
-  headerCard: {
-    backgroundColor: "#FFFFFF",
+  cardResumen: {
+    backgroundColor: "#0057B8",
     borderRadius: 18,
-    padding: 24,
-    marginBottom: 25,
-    elevation: 5,
-    borderLeftWidth: 6,
-    borderLeftColor: "#F9B233",
+    padding: 20,
+    marginBottom: 20
   },
 
-  program: {
+  programa: {
+    color: "#fff",
     fontSize: 22,
-    fontWeight: "bold",
-    color: "#0057B8",
+    fontWeight: "bold"
   },
 
-  foundation: {
-    fontSize: 16,
-    color: "#00AEEF",
-    marginBottom: 18,
+  fundacion: {
+    color: "#E0F2FE",
+    marginTop: 5
   },
 
-  totalLabel: {
-    fontSize: 15,
-    color: "#64748B",
-  },
-
-  totalHours: {
-    fontSize: 42,
-    fontWeight: "bold",
+  total: {
     color: "#F9B233",
-  },
-
-  sectionTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#1E293B",
-    marginBottom: 15,
+    marginTop: 15
   },
 
-  item: {
-    backgroundColor: "#FFFFFF",
-    padding: 18,
+  card: {
+    backgroundColor: "#fff",
+    padding: 16,
     borderRadius: 14,
-    marginBottom: 12,
-    elevation: 3,
+    marginBottom: 15
   },
 
-  activity: {
-    fontSize: 17,
+  actividad: {
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#0057B8",
+    color: "#0057B8"
   },
 
-  hours: {
-    fontSize: 16,
-    color: "#F9B233",
-    fontWeight: "600",
-    marginTop: 6,
-  },
+  text: {
+    marginTop: 5,
+    color: "#334155"
+  }
 
-  date: {
-    marginTop: 6,
-    color: "#64748B",
-  },
 });

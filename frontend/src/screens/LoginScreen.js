@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 import {
   View,
   Text,
@@ -10,50 +11,93 @@ import {
 
 import axios from 'axios';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 export default function LoginScreen({ navigation }) {
+
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
 
   const iniciarSesion = async () => {
+
     try {
+
+      console.log("INTENTANDO LOGIN");
+
       const response = await axios.post(
         'http://192.168.0.13:3000/api/auth/login',
         {
-          correo,
-          password
+          correo: correo.trim(),
+          password: password.trim()
         }
       );
 
-      const rol = response.data.usuario.rol;
+      console.log("RESPUESTA LOGIN:", response.data);
 
-      if (rol === 'admin') {
+      const usuario = response.data.usuario;
+
+      if (!usuario) {
+
+        Alert.alert(
+          'Error',
+          'No llegó el usuario'
+        );
+
+        return;
+      }
+
+      await AsyncStorage.removeItem('usuario');
+
+      await AsyncStorage.setItem(
+        'usuario',
+        JSON.stringify(usuario)
+      );
+
+      console.log("USUARIO GUARDADO:", usuario);
+
+      if (usuario.rol === 'admin') {
+
         navigation.navigate('Admin');
+
       } else {
+
         navigation.navigate('Home');
+
       }
 
     } catch (error) {
+
+      console.log("ERROR LOGIN:", error);
+
       Alert.alert(
         'Error',
-        error.response?.data?.message || 'No se pudo iniciar sesión'
+        error.response?.data?.message ||
+        'No se pudo iniciar sesión'
       );
+
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Conecta Voluntad</Text>
+
+      <Text style={styles.title}>
+        Conecta Voluntad
+      </Text>
 
       <TextInput
         style={styles.input}
         placeholder="Correo"
+        placeholderTextColor="#64748B"
         value={correo}
         onChangeText={setCorreo}
+        autoCapitalize="none"
       />
 
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
+        placeholderTextColor="#64748B"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -63,53 +107,75 @@ export default function LoginScreen({ navigation }) {
         style={styles.button}
         onPress={iniciarSesion}
       >
-        <Text style={styles.buttonText}>Iniciar sesión</Text>
+
+        <Text style={styles.buttonText}>
+          Iniciar sesión
+        </Text>
+
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.buttonSecondary}
-        onPress={() => navigation.navigate('Registro')}
+        onPress={() =>
+          navigation.navigate('Registro')
+        }
       >
-        <Text style={styles.buttonText}>Registrarse</Text>
+
+        <Text style={styles.buttonText}>
+          Ir a registro
+        </Text>
+
       </TouchableOpacity>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#F8FAFC',
+    padding: 20
   },
+
   title: {
-    fontSize: 28,
-    textAlign: 'center',
-    marginBottom: 20,
+    fontSize: 32,
+    fontWeight: 'bold',
     color: '#0057B8',
-    fontWeight: 'bold'
+    textAlign: 'center',
+    marginBottom: 30
   },
+
   input: {
-    borderWidth: 1,
-    padding: 12,
+    backgroundColor: '#FFFFFF',
+    color: '#000',
+    padding: 15,
+    borderRadius: 12,
     marginBottom: 15,
-    borderRadius: 8
+    borderWidth: 1,
+    borderColor: '#CBD5E1'
   },
+
   button: {
     backgroundColor: '#0057B8',
-    padding: 15,
-    borderRadius: 8,
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 10
   },
+
   buttonSecondary: {
-    backgroundColor: '#F9B233',
-    padding: 15,
-    borderRadius: 8
+    backgroundColor: '#00AEEF',
+    padding: 16,
+    borderRadius: 12
   },
+
   buttonText: {
-    color: 'white',
+    color: '#FFFFFF',
     textAlign: 'center',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontSize: 16
   }
+
 });

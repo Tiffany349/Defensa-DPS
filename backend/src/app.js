@@ -8,9 +8,10 @@ require("./models");
 const authRoutes = require("./routes/authRoutes");
 const activityRoutes = require("./routes/activityRoutes");
 const inscriptionRoutes = require("./routes/inscriptionRoutes");
-
+const socialHoursRoutes = require("./routes/socialHoursRoutes");
 const app = express();
 
+app.use("/api/horas", socialHoursRoutes);
 app.use(cors());
 app.use(express.json());
 
