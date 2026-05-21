@@ -1,6 +1,26 @@
-const { Activity } = require("../models");
+const Activity = require('../models/Activity');
 
-const crearActividad = async (req, res) => {
+exports.getActivities = async (req, res) => {
+
+  try {
+
+    const activities = await Activity.findAll();
+
+    res.json(activities);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: 'Error al obtener actividades'
+    });
+
+  }
+
+};
+
+exports.createActivity = async (req, res) => {
 
   try {
 
@@ -23,25 +43,12 @@ const crearActividad = async (req, res) => {
     ) {
 
       return res.status(400).json({
-        message: "Todos los campos son obligatorios"
+        message: 'Completa todos los campos'
       });
+
     }
 
-    if (horas <= 0) {
-
-      return res.status(400).json({
-        message: "Las horas deben ser mayores a 0"
-      });
-    }
-
-    if (cupos <= 0) {
-
-      return res.status(400).json({
-        message: "Los cupos deben ser mayores a 0"
-      });
-    }
-
-    const actividad = await Activity.create({
+    const activity = await Activity.create({
       titulo,
       descripcion,
       fecha,
@@ -50,59 +57,84 @@ const crearActividad = async (req, res) => {
       ubicacion
     });
 
-    res.status(201).json(actividad);
+    res.status(201).json(activity);
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
-      message: "Error al crear actividad"
+      message: 'Error al crear actividad'
     });
 
   }
+
 };
 
-const obtenerActividades = async (req, res) => {
+exports.updateActivity = async (req, res) => {
 
   try {
 
-    const actividades = await Activity.findAll();
+    const activity = await Activity.findByPk(
+      req.params.id
+    );
 
-    res.json(actividades);
+    if (!activity) {
 
-  } catch (error) {
+      return res.status(404).json({
+        message: 'Actividad no encontrada'
+      });
 
-    res.status(500).json({
-      message: "Error al obtener actividades"
-    });
+    }
 
-  }
-};
-
-const eliminarActividad = async (req, res) => {
-
-  try {
-
-    const { id } = req.params;
-
-    await Activity.destroy({
-      where: { id }
-    });
+    await activity.update(req.body);
 
     res.json({
-      message: "Actividad eliminada"
+      message: 'Actividad actualizada'
     });
 
   } catch (error) {
 
+    console.log(error);
+
     res.status(500).json({
-      message: "Error al eliminar actividad"
+      message: 'Error al actualizar actividad'
     });
 
   }
+
 };
 
-module.exports = {
-  crearActividad,
-  obtenerActividades,
-  eliminarActividad
+exports.deleteActivity = async (req, res) => {
+
+  try {
+
+    const activity = await Activity.findByPk(
+      req.params.id
+    );
+
+    if (!activity) {
+
+      return res.status(404).json({
+        message: 'Actividad no encontrada'
+      });
+
+    }
+
+    await activity.destroy();
+
+    res.json({
+      message: 'Actividad eliminada'
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      message: 'Error al eliminar actividad'
+    });
+
+  }
+
 };

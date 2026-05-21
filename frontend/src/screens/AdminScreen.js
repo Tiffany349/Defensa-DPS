@@ -57,34 +57,6 @@ export default function AdminScreen({ navigation }) {
 
       </View>
 
-      <View style={styles.statsContainer}>
-
-        <View style={styles.statCard}>
-
-          <Text style={styles.statIcon}>
-            📋
-          </Text>
-
-          <Text style={styles.statTitle}>
-            Actividades
-          </Text>
-
-        </View>
-
-        <View style={styles.statCard}>
-
-          <Text style={styles.statIcon}>
-            👥
-          </Text>
-
-          <Text style={styles.statTitle}>
-            Voluntarios
-          </Text>
-
-        </View>
-
-      </View>
-
       <Text style={styles.sectionTitle}>
         Administración
       </Text>
@@ -157,7 +129,7 @@ export default function AdminScreen({ navigation }) {
         <View style={styles.cardIconContainer}>
 
           <Text style={styles.cardIcon}>
-            🧑‍🤝‍🧑
+            👥
           </Text>
 
         </View>
@@ -165,11 +137,11 @@ export default function AdminScreen({ navigation }) {
         <View style={styles.cardContent}>
 
           <Text style={styles.cardTitle}>
-            Ver inscritos
+            Voluntarios inscritos
           </Text>
 
           <Text style={styles.cardDescription}>
-            Consulta participantes y validaciones
+            Consulta participantes y valida horas
           </Text>
 
         </View>
@@ -239,33 +211,6 @@ const styles = StyleSheet.create({
   },
 
   logoutText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 16
-  },
-
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 20,
-    marginTop: 25
-  },
-
-  statCard: {
-    backgroundColor: '#D4AF37',
-    width: '48%',
-    borderRadius: 22,
-    padding: 22,
-    alignItems: 'center',
-    elevation: 4
-  },
-
-  statIcon: {
-    fontSize: 32,
-    marginBottom: 10
-  },
-
-  statTitle: {
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: 16

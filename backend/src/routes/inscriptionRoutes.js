@@ -2,25 +2,27 @@ const express = require('express');
 
 const router = express.Router();
 
-const {
-  crearInscripcion,
-  obtenerInscripciones,
-  eliminarInscripcion
-} = require('../controllers/inscriptionController');
-
-router.post(
-  '/',
-  crearInscripcion
-);
+const inscriptionController =
+  require('../controllers/inscriptionController');
 
 router.get(
   '/',
-  obtenerInscripciones
+  inscriptionController.getInscriptions
+);
+
+router.post(
+  '/',
+  inscriptionController.createInscription
 );
 
 router.delete(
   '/:id',
-  eliminarInscripcion
+  inscriptionController.deleteInscription
+);
+
+router.put(
+  '/validar/:id',
+  inscriptionController.validarHoras
 );
 
 module.exports = router;

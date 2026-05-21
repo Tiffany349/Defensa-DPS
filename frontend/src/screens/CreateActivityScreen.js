@@ -7,102 +7,54 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  Platform
+  ScrollView
 } from 'react-native';
-
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 import axios from 'axios';
 
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 const API = 'http://192.168.0.13:3000/api';
 
-export default function CreateActivityScreen() {
+export default function CreateActivityScreen({ navigation }) {
 
   const [titulo, setTitulo] = useState('');
   const [descripcion, setDescripcion] = useState('');
-
-  const [fechaInicio, setFechaInicio] =
-    useState(new Date());
-
-  const [fechaFin, setFechaFin] =
-    useState(new Date());
-
-  const [horas, setHoras] = useState('');
-  const [cupos, setCupos] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [cupos, setCupos] = useState('');
+  const [horas, setHoras] = useState('');
 
-  const [showInicioPicker, setShowInicioPicker] =
+  const [fechaInicio, setFechaInicio] = useState(
+    new Date()
+  );
+
+  const [fechaFin, setFechaFin] = useState(
+    new Date()
+  );
+
+  const [mostrarInicio, setMostrarInicio] =
     useState(false);
 
-  const [showFinPicker, setShowFinPicker] =
+  const [mostrarFin, setMostrarFin] =
     useState(false);
 
   const crearActividad = async () => {
 
     if (
-      !titulo.trim() ||
-      !descripcion.trim() ||
-      !horas.trim() ||
-      !cupos.trim() ||
-      !ubicacion.trim()
+      !titulo ||
+      !descripcion ||
+      !ubicacion ||
+      !cupos ||
+      !horas
     ) {
 
       Alert.alert(
         'Error',
-        'Todos los campos son obligatorios'
+        'Completa todos los campos'
       );
 
       return;
-    }
 
-    if (titulo.trim().length < 3) {
-
-      Alert.alert(
-        'Error',
-        'El título es muy corto'
-      );
-
-      return;
-    }
-
-    if (descripcion.trim().length < 10) {
-
-      Alert.alert(
-        'Error',
-        'La descripción debe tener mínimo 10 caracteres'
-      );
-
-      return;
-    }
-
-    if (isNaN(horas) || Number(horas) <= 0) {
-
-      Alert.alert(
-        'Error',
-        'Las horas deben ser válidas'
-      );
-
-      return;
-    }
-
-    if (isNaN(cupos) || Number(cupos) <= 0) {
-
-      Alert.alert(
-        'Error',
-        'Los cupos deben ser válidos'
-      );
-
-      return;
-    }
-
-    if (fechaFin < fechaInicio) {
-
-      Alert.alert(
-        'Error',
-        'La fecha final no puede ser menor'
-      );
-
-      return;
     }
 
     try {
@@ -112,11 +64,11 @@ export default function CreateActivityScreen() {
         {
           titulo,
           descripcion,
-          fecha: fechaInicio,
-          fecha_fin: fechaFin,
-          horas,
-          cupos,
-          ubicacion
+          ubicacion,
+          cupos: parseInt(cupos),
+          horas: parseInt(horas),
+
+          fecha: fechaInicio
         }
       );
 
@@ -125,15 +77,11 @@ export default function CreateActivityScreen() {
         'Actividad creada correctamente'
       );
 
-      setTitulo('');
-      setDescripcion('');
-      setFechaInicio(new Date());
-      setFechaFin(new Date());
-      setHoras('');
-      setCupos('');
-      setUbicacion('');
+      navigation.goBack();
 
     } catch (error) {
+
+      console.log(error.response?.data);
 
       Alert.alert(
         'Error',
@@ -145,143 +93,183 @@ export default function CreateActivityScreen() {
   };
 
   return (
-    <View style={styles.container}>
 
-      <Text style={styles.title}>
-        Crear Actividad
-      </Text>
+    <ScrollView style={styles.container}>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre de la actividad"
-        placeholderTextColor="#64748B"
-        value={titulo}
-        onChangeText={setTitulo}
-      />
+      <View style={styles.topDecoration} />
 
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        placeholder="Descripción"
-        placeholderTextColor="#64748B"
-        multiline
-        value={descripcion}
-        onChangeText={setDescripcion}
-      />
+      <View style={styles.headerCard}>
 
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowInicioPicker(true)}
-      >
-
-        <Text style={styles.dateText}>
-          Fecha de inicio:
-          {' '}
-          {fechaInicio.toLocaleDateString()}
+        <Text style={styles.subtitle}>
+          Fundación Gloria de Kriete
         </Text>
 
-      </TouchableOpacity>
+        <Text style={styles.title}>
+          Crear Actividad
+        </Text>
 
-      {showInicioPicker && (
+        <Text style={styles.descriptionHeader}>
+          Registra nuevas jornadas de voluntariado
+        </Text>
 
-        <DateTimePicker
-          value={fechaInicio}
-          mode="date"
-          display={
-            Platform.OS === 'android'
-              ? 'calendar'
-              : 'default'
-          }
-          minimumDate={new Date()}
-          onChange={(event, selectedDate) => {
+      </View>
 
-            setShowInicioPicker(false);
+      <View style={styles.formContainer}>
 
-            if (selectedDate) {
+        <Text style={styles.label}>
+          Nombre de actividad
+        </Text>
 
-              setFechaInicio(selectedDate);
-
-            }
-          }}
+        <TextInput
+          style={styles.input}
+          placeholder="Ejemplo: Jornada de limpieza"
+          placeholderTextColor="#94A3B8"
+          value={titulo}
+          onChangeText={setTitulo}
         />
 
-      )}
-
-      <TouchableOpacity
-        style={styles.dateButton}
-        onPress={() => setShowFinPicker(true)}
-      >
-
-        <Text style={styles.dateText}>
-          Fecha de finalización:
-          {' '}
-          {fechaFin.toLocaleDateString()}
+        <Text style={styles.label}>
+          Descripción
         </Text>
 
-      </TouchableOpacity>
-
-      {showFinPicker && (
-
-        <DateTimePicker
-          value={fechaFin}
-          mode="date"
-          display={
-            Platform.OS === 'android'
-              ? 'calendar'
-              : 'default'
-          }
-          minimumDate={fechaInicio}
-          onChange={(event, selectedDate) => {
-
-            setShowFinPicker(false);
-
-            if (selectedDate) {
-
-              setFechaFin(selectedDate);
-
-            }
-          }}
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          placeholder="Describe la actividad"
+          placeholderTextColor="#94A3B8"
+          multiline
+          value={descripcion}
+          onChangeText={setDescripcion}
         />
 
-      )}
-
-      <TextInput
-        style={styles.input}
-        placeholder="Horas"
-        placeholderTextColor="#64748B"
-        keyboardType="numeric"
-        value={horas}
-        onChangeText={setHoras}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Cupos"
-        placeholderTextColor="#64748B"
-        keyboardType="numeric"
-        value={cupos}
-        onChangeText={setCupos}
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Ubicación"
-        placeholderTextColor="#64748B"
-        value={ubicacion}
-        onChangeText={setUbicacion}
-      />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={crearActividad}
-      >
-
-        <Text style={styles.buttonText}>
-          Crear actividad
+        <Text style={styles.label}>
+          Ubicación
         </Text>
 
-      </TouchableOpacity>
+        <TextInput
+          style={styles.input}
+          placeholder="Lugar del evento"
+          placeholderTextColor="#94A3B8"
+          value={ubicacion}
+          onChangeText={setUbicacion}
+        />
 
-    </View>
+        <Text style={styles.label}>
+          Cupos disponibles
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Cantidad de cupos"
+          placeholderTextColor="#94A3B8"
+          keyboardType="numeric"
+          value={cupos}
+          onChangeText={setCupos}
+        />
+
+        <Text style={styles.label}>
+          Horas de vinculación
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Cantidad de horas"
+          placeholderTextColor="#94A3B8"
+          keyboardType="numeric"
+          value={horas}
+          onChangeText={setHoras}
+        />
+
+        <Text style={styles.label}>
+          Fecha de inicio
+        </Text>
+
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() =>
+            setMostrarInicio(true)
+          }
+        >
+
+          <Text style={styles.dateText}>
+            {fechaInicio.toLocaleDateString()}
+          </Text>
+
+        </TouchableOpacity>
+
+        {mostrarInicio && (
+
+          <DateTimePicker
+            value={fechaInicio}
+            mode="date"
+            display="calendar"
+            onChange={(event, selectedDate) => {
+
+              setMostrarInicio(false);
+
+              if (selectedDate) {
+
+                setFechaInicio(selectedDate);
+
+              }
+
+            }}
+          />
+
+        )}
+
+        <Text style={styles.label}>
+          Fecha de finalización
+        </Text>
+
+        <TouchableOpacity
+          style={styles.dateButton}
+          onPress={() =>
+            setMostrarFin(true)
+          }
+        >
+
+          <Text style={styles.dateText}>
+            {fechaFin.toLocaleDateString()}
+          </Text>
+
+        </TouchableOpacity>
+
+        {mostrarFin && (
+
+          <DateTimePicker
+            value={fechaFin}
+            mode="date"
+            display="calendar"
+            onChange={(event, selectedDate) => {
+
+              setMostrarFin(false);
+
+              if (selectedDate) {
+
+                setFechaFin(selectedDate);
+
+              }
+
+            }}
+          />
+
+        )}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={crearActividad}
+        >
+
+          <Text style={styles.buttonText}>
+            Crear actividad
+          </Text>
+
+        </TouchableOpacity>
+
+      </View>
+
+    </ScrollView>
+
   );
 }
 
@@ -289,25 +277,67 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    padding: 20
+    backgroundColor: '#F6F8FC'
+  },
+
+  topDecoration: {
+    height: 120,
+    backgroundColor: '#B5121B',
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40
+  },
+
+  headerCard: {
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    marginTop: -60,
+    borderRadius: 28,
+    padding: 24,
+    elevation: 6
+  },
+
+  subtitle: {
+    color: '#B5121B',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 5
   },
 
   title: {
     fontSize: 30,
     fontWeight: 'bold',
-    color: '#0057B8',
-    marginBottom: 20
+    color: '#1E293B'
+  },
+
+  descriptionHeader: {
+    color: '#64748B',
+    marginTop: 8,
+    fontSize: 15
+  },
+
+  formContainer: {
+    marginTop: 25,
+    paddingHorizontal: 20,
+    paddingBottom: 40
+  },
+
+  label: {
+    color: '#1E293B',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 10
   },
 
   input: {
     backgroundColor: '#FFFFFF',
+    borderRadius: 18,
+    padding: 16,
     color: '#000000',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
+    fontSize: 15,
+    elevation: 3,
     borderWidth: 1,
-    borderColor: '#CBD5E1'
+    borderColor: '#E2E8F0'
   },
 
   textArea: {
@@ -317,30 +347,31 @@ const styles = StyleSheet.create({
 
   dateButton: {
     backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
+    padding: 16,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#CBD5E1'
+    borderColor: '#E2E8F0',
+    elevation: 3
   },
 
   dateText: {
-    color: '#000000',
-    fontSize: 16
+    color: '#1E293B',
+    fontSize: 15
   },
 
   button: {
-    backgroundColor: '#0057B8',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 10
+    backgroundColor: '#B5121B',
+    marginTop: 35,
+    paddingVertical: 18,
+    borderRadius: 18,
+    alignItems: 'center',
+    elevation: 5
   },
 
   buttonText: {
     color: '#FFFFFF',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 16
+    fontSize: 17,
+    fontWeight: 'bold'
   }
 
 });
