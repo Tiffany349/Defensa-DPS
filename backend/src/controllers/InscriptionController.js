@@ -1,121 +1,145 @@
 const {
   Inscription,
-  User,
-  Activity,
-  SocialHours
-} = require("../models");
+  Activity
+} = require('../models');
 
-const inscribirse = async (req, res) => {
+const crearInscripcion = async (req, res) => {
+
   try {
-    const { usuario_id, actividad_id } = req.body;
 
-    const existe = await Inscription.findOne({
-      where: { usuario_id, actividad_id }
-    });
+    const {
+      usuario_id,
+      actividad_id
+    } = req.body;
 
-    if (existe) {
-      return res.status(400).json({
-        message: "Ya estás inscrito"
+    const actividad =
+      await Activity.findByPk(actividad_id);
+
+    if (!actividad) {
+
+      return res.status(404).json({
+        message: 'Actividad no encontrada'
       });
+
     }
 
-    await Inscription.create({
-      usuario_id,
-      actividad_id,
-      estado: "inscrito"
+    if (actividad.cupos <= 0) {
+
+      return res.status(400).json({
+        message: 'Cupos llenos'
+      });
+
+    }
+
+    const existe =
+      await Inscription.findOne({
+        where: {
+          usuario_id,
+          actividad_id
+        }
+      });
+
+    if (existe) {
+
+      return res.status(400).json({
+        message: 'Ya estás inscrito'
+      });
+
+    }
+
+    const nuevaInscripcion =
+      await Inscription.create({
+        usuario_id,
+        actividad_id
+      });
+
+    await actividad.update({
+      cupos: actividad.cupos - 1
     });
 
     res.status(201).json({
-      message: "Inscripción realizada"
+      message: 'Inscripción creada',
+      nuevaInscripcion
     });
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
-      message: "Error al inscribirse"
+      message: 'Error al inscribirse'
     });
+
   }
 };
 
-const obtenerInscritos = async (req, res) => {
-  try {
-    const inscritos = await Inscription.findAll({
-      include: [User, Activity]
-    });
+const obtenerInscripciones = async (req, res) => {
 
-    res.json(inscritos);
+  try {
+
+    const inscripciones =
+      await Inscription.findAll();
+
+    res.json(inscripciones);
 
   } catch (error) {
-    console.log(error);
 
     res.status(500).json({
-      message: "Error al obtener inscritos"
+      message: 'Error al obtener inscripciones'
     });
+
   }
 };
 
-const validarHoras = async (req, res) => {
+const eliminarInscripcion = async (req, res) => {
+
   try {
+
     const { id } = req.params;
 
-    const inscripcion = await Inscription.findByPk(id, {
-      include: [Activity]
-    });
+    const inscripcion =
+      await Inscription.findByPk(id);
 
     if (!inscripcion) {
+
       return res.status(404).json({
-        message: "Inscripción no encontrada"
+        message: 'Inscripción no encontrada'
       });
+
     }
 
-    inscripcion.estado = "completado";
-    await inscripcion.save();
+    const actividad =
+      await Activity.findByPk(
+        inscripcion.actividad_id
+      );
 
-    await SocialHours.create({
-      usuario_id: inscripcion.usuario_id,
-      actividad_id: inscripcion.actividad_id,
-      horas: inscripcion.Activity.horas,
-      fecha: new Date()
-    });
+    if (actividad) {
+
+      await actividad.update({
+        cupos: actividad.cupos + 1
+      });
+
+    }
+
+    await inscripcion.destroy();
 
     res.json({
-      message: "Horas validadas"
+      message: 'Inscripción eliminada'
     });
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
-      message: "Error al validar"
-    });
-  }
-};
-
-const cancelarInscripcion = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    await Inscription.destroy({
-      where: { id }
+      message: 'Error al eliminar inscripción'
     });
 
-    res.json({
-      message: "Inscripción cancelada"
-    });
-
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Error al cancelar"
-    });
   }
 };
 
 module.exports = {
-  inscribirse,
-  obtenerInscritos,
-  validarHoras,
-  cancelarInscripcion
+  crearInscripcion,
+  obtenerInscripciones,
+  eliminarInscripcion
 };

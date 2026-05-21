@@ -32,8 +32,7 @@ export default function HomeScreen({ navigation }) {
 
       if (usuarioGuardado) {
 
-        const usuario =
-          JSON.parse(usuarioGuardado);
+        const usuario = JSON.parse(usuarioGuardado);
 
         setUsuarioId(usuario.id);
 
@@ -42,24 +41,6 @@ export default function HomeScreen({ navigation }) {
     } catch (error) {
 
       console.log(error);
-
-    }
-  };
-
-  const cerrarSesion = async () => {
-
-    try {
-
-      await AsyncStorage.removeItem('usuario');
-
-      navigation.replace('Login');
-
-    } catch (error) {
-
-      Alert.alert(
-        'Error',
-        'No se pudo cerrar sesión'
-      );
 
     }
   };
@@ -140,6 +121,7 @@ export default function HomeScreen({ navigation }) {
       );
 
       obtenerInscripciones();
+      obtenerActividades();
 
     } catch (error) {
 
@@ -166,6 +148,7 @@ export default function HomeScreen({ navigation }) {
       );
 
       obtenerInscripciones();
+      obtenerActividades();
 
     } catch (error) {
 
@@ -175,6 +158,14 @@ export default function HomeScreen({ navigation }) {
       );
 
     }
+  };
+
+  const cerrarSesion = async () => {
+
+    await AsyncStorage.removeItem('usuario');
+
+    navigation.replace('Login');
+
   };
 
   useEffect(() => {
@@ -200,13 +191,27 @@ export default function HomeScreen({ navigation }) {
     0
   );
 
+  const actividadesInscritas = activities.filter(
+    (actividad) =>
+      inscripciones.some(
+        (i) => i.actividad_id === actividad.id
+      )
+  );
+
+  const actividadesDisponibles = activities.filter(
+    (actividad) =>
+      !inscripciones.some(
+        (i) => i.actividad_id === actividad.id
+      )
+  );
+
   return (
     <ScrollView style={styles.container}>
 
-      <View style={styles.headerContainer}>
+      <View style={styles.header}>
 
-        <Text style={styles.title}>
-          Actividades Disponibles
+        <Text style={styles.logo}>
+          Conecta Voluntad
         </Text>
 
         <TouchableOpacity
@@ -222,20 +227,41 @@ export default function HomeScreen({ navigation }) {
 
       </View>
 
-      <View style={styles.hoursCard}>
+      <View style={styles.banner}>
 
-        <Text style={styles.hoursTitle}>
-          Horas de Vinculación
+        <Text style={styles.bannerTitle}>
+          Bienvenido Voluntario
         </Text>
 
-        <Text style={styles.hoursNumber}>
-          {totalHoras} horas
+        <Text style={styles.bannerText}>
+          Participa en actividades y acumula
+          horas de vinculación.
         </Text>
 
       </View>
 
+      <View style={styles.hoursCard}>
+
+        <Text style={styles.hoursTitle}>
+          Horas Acumuladas
+        </Text>
+
+        <Text style={styles.hoursNumber}>
+          {totalHoras}
+        </Text>
+
+        <Text style={styles.hoursSubtitle}>
+          Horas validadas por administrador
+        </Text>
+
+      </View>
+
+      <Text style={styles.sectionTitle}>
+        Mis Actividades
+      </Text>
+
       <FlatList
-        data={activities}
+        data={actividadesInscritas}
         keyExtractor={(item) => item.id.toString()}
         scrollEnabled={false}
         renderItem={({ item }) => {
@@ -263,24 +289,68 @@ export default function HomeScreen({ navigation }) {
                 ⏰ {item.horas} horas
               </Text>
 
-              <Text style={styles.info}>
-                👥 {item.cupos} cupos
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() =>
+                  cancelarInscripcion(inscripcion.id)
+                }
+              >
+
+                <Text style={styles.buttonText}>
+                  Cancelar inscripción
+                </Text>
+
+              </TouchableOpacity>
+
+            </View>
+          );
+        }}
+      />
+
+      <Text style={styles.sectionTitle}>
+        Actividades Disponibles
+      </Text>
+
+      <FlatList
+        data={actividadesDisponibles}
+        keyExtractor={(item) => item.id.toString()}
+        scrollEnabled={false}
+        renderItem={({ item }) => {
+
+          const cuposLlenos = item.cupos <= 0;
+
+          return (
+            <View style={styles.card}>
+
+              <Text style={styles.activityTitle}>
+                {item.titulo}
               </Text>
 
-              {inscripcion ? (
+              <Text style={styles.description}>
+                {item.descripcion}
+              </Text>
 
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() =>
-                    cancelarInscripcion(inscripcion.id)
-                  }
-                >
+              <Text style={styles.info}>
+                📍 {item.ubicacion}
+              </Text>
+
+              <Text style={styles.info}>
+                ⏰ {item.horas} horas
+              </Text>
+
+              <Text style={styles.info}>
+                👥 {item.cupos} cupos disponibles
+              </Text>
+
+              {cuposLlenos ? (
+
+                <View style={styles.fullButton}>
 
                   <Text style={styles.buttonText}>
-                    Cancelar inscripción
+                    Cupos llenos
                   </Text>
 
-                </TouchableOpacity>
+                </View>
 
               ) : (
 
@@ -312,28 +382,29 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
-    padding: 20
+    backgroundColor: '#F5F7FA',
+    padding: 18
   },
 
-  headerContainer: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20
+    marginBottom: 25,
+    marginTop: 10
   },
 
-  title: {
-    fontSize: 28,
+  logo: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#0057B8',
+    color: '#A30D11',
     flex: 1
   },
 
   logoutButton: {
-    backgroundColor: '#DC2626',
-    paddingVertical: 10,
+    backgroundColor: '#A30D11',
     paddingHorizontal: 14,
+    paddingVertical: 10,
     borderRadius: 12,
     marginLeft: 10
   },
@@ -341,65 +412,111 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    fontSize: 14
+    fontSize: 13
+  },
+
+  banner: {
+    backgroundColor: '#A30D11',
+    padding: 24,
+    borderRadius: 24,
+    marginBottom: 22,
+    elevation: 6
+  },
+
+  bannerTitle: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 10
+  },
+
+  bannerText: {
+    color: '#FDE68A',
+    fontSize: 16,
+    lineHeight: 24
   },
 
   hoursCard: {
-    backgroundColor: '#0057B8',
-    padding: 20,
-    borderRadius: 18,
-    marginBottom: 25
+    backgroundColor: '#FFFFFF',
+    padding: 25,
+    borderRadius: 22,
+    marginBottom: 25,
+    elevation: 5,
+    borderLeftWidth: 8,
+    borderLeftColor: '#D4AF37'
   },
 
   hoursTitle: {
-    color: '#FFFFFF',
+    color: '#64748B',
     fontSize: 18
   },
 
   hoursNumber: {
-    color: '#F9B233',
-    fontSize: 34,
+    color: '#A30D11',
+    fontSize: 52,
     fontWeight: 'bold',
+    marginTop: 10
+  },
+
+  hoursSubtitle: {
+    color: '#475569',
+    marginTop: 5
+  },
+
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#A30D11',
+    marginBottom: 20,
     marginTop: 10
   },
 
   card: {
     backgroundColor: '#FFFFFF',
-    padding: 18,
-    borderRadius: 16,
-    marginBottom: 16,
-    elevation: 3
+    padding: 20,
+    borderRadius: 22,
+    marginBottom: 18,
+    elevation: 5
   },
 
   activityTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#0057B8',
+    color: '#A30D11',
     marginBottom: 10
   },
 
   description: {
     color: '#334155',
-    marginBottom: 10
+    lineHeight: 22,
+    marginBottom: 14
   },
 
   info: {
     color: '#475569',
-    marginTop: 5
+    marginTop: 8,
+    fontSize: 15
   },
 
   button: {
-    backgroundColor: '#00AEEF',
-    padding: 14,
-    borderRadius: 12,
-    marginTop: 18
+    backgroundColor: '#D4AF37',
+    padding: 16,
+    borderRadius: 14,
+    marginTop: 22
   },
 
   cancelButton: {
-    backgroundColor: '#DC2626',
-    padding: 14,
-    borderRadius: 12,
-    marginTop: 18
+    backgroundColor: '#B91C1C',
+    padding: 16,
+    borderRadius: 14,
+    marginTop: 22
+  },
+
+  fullButton: {
+    backgroundColor: '#64748B',
+    padding: 16,
+    borderRadius: 14,
+    marginTop: 22
   },
 
   buttonText: {

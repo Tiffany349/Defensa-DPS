@@ -1,16 +1,26 @@
-const express = require("express");
+const express = require('express');
+
 const router = express.Router();
 
 const {
-  inscribirse,
-  obtenerInscritos,
-  validarHoras,
-  cancelarInscripcion
-} = require("../controllers/InscriptionController");
+  crearInscripcion,
+  obtenerInscripciones,
+  eliminarInscripcion
+} = require('../controllers/inscriptionController');
 
-router.post("/", inscribirse);
-router.get("/", obtenerInscritos);
-router.put("/validar/:id", validarHoras);
-router.delete("/:id", cancelarInscripcion);
+router.post(
+  '/',
+  crearInscripcion
+);
+
+router.get(
+  '/',
+  obtenerInscripciones
+);
+
+router.delete(
+  '/:id',
+  eliminarInscripcion
+);
 
 module.exports = router;

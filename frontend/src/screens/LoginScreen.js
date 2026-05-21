@@ -6,7 +6,8 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert
+  Alert,
+  ScrollView
 } from 'react-native';
 
 import axios from 'axios';
@@ -27,30 +28,7 @@ export default function LoginScreen({ navigation }) {
 
       Alert.alert(
         'Error',
-        'Debes completar todos los campos'
-      );
-
-      return;
-    }
-
-    const regexCorreo =
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!regexCorreo.test(correo.trim())) {
-
-      Alert.alert(
-        'Error',
-        'Correo inválido'
-      );
-
-      return;
-    }
-
-    if (password.length < 6) {
-
-      Alert.alert(
-        'Error',
-        'La contraseña debe tener mínimo 6 caracteres'
+        'Completa todos los campos'
       );
 
       return;
@@ -107,55 +85,79 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+    >
 
-      <Text style={styles.title}>
-        Conecta Voluntad
-      </Text>
+      <View style={styles.banner}>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Correo"
-        placeholderTextColor="#64748B"
-        value={correo}
-        onChangeText={setCorreo}
-        autoCapitalize="none"
-      />
-
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        placeholderTextColor="#64748B"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
-
-      <TouchableOpacity
-        style={styles.button}
-        onPress={iniciarSesion}
-      >
-
-        <Text style={styles.buttonText}>
-          Iniciar sesión
+        <Text style={styles.bannerTitle}>
+          Conecta Voluntad
         </Text>
 
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.buttonSecondary}
-        onPress={() =>
-          navigation.navigate('Registro')
-        }
-      >
-
-        <Text style={styles.buttonText}>
-          Ir a registro
+        <Text style={styles.bannerText}>
+          Plataforma de voluntariado
         </Text>
 
-      </TouchableOpacity>
+      </View>
 
-    </View>
+      <View style={styles.formCard}>
+
+        <Text style={styles.label}>
+          Correo electrónico
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Ingresa tu correo"
+          placeholderTextColor="#64748B"
+          value={correo}
+          onChangeText={setCorreo}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <Text style={styles.label}>
+          Contraseña
+        </Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Ingresa tu contraseña"
+          placeholderTextColor="#64748B"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={iniciarSesion}
+        >
+
+          <Text style={styles.buttonText}>
+            Iniciar sesión
+          </Text>
+
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          onPress={() =>
+            navigation.navigate('Registro')
+          }
+        >
+
+          <Text style={styles.buttonText}>
+            Crear cuenta
+          </Text>
+
+        </TouchableOpacity>
+
+      </View>
+
+    </ScrollView>
   );
 }
 
@@ -163,40 +165,73 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-    padding: 20
+    backgroundColor: '#F5F7FA'
   },
 
-  title: {
-    fontSize: 32,
+  content: {
+    padding: 20,
+    justifyContent: 'center',
+    flexGrow: 1
+  },
+
+  banner: {
+    backgroundColor: '#A30D11',
+    padding: 30,
+    borderRadius: 25,
+    marginBottom: 25,
+    elevation: 5
+  },
+
+  bannerTitle: {
+    color: '#FFFFFF',
+    fontSize: 34,
+    fontWeight: 'bold'
+  },
+
+  bannerText: {
+    color: '#FDE68A',
+    fontSize: 16,
+    marginTop: 8
+  },
+
+  formCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
+    padding: 25,
+    elevation: 5
+  },
+
+  label: {
+    color: '#A30D11',
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#0057B8',
-    textAlign: 'center',
-    marginBottom: 30
+    marginBottom: 8,
+    marginTop: 10
   },
 
   input: {
-    backgroundColor: '#FFFFFF',
-    color: '#000',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
+    backgroundColor: '#F8FAFC',
+    color: '#000000',
     borderWidth: 1,
-    borderColor: '#CBD5E1'
+    borderColor: '#D1D5DB',
+    borderRadius: 14,
+    padding: 15,
+    marginBottom: 10,
+    fontSize: 16
   },
 
   button: {
-    backgroundColor: '#0057B8',
+    backgroundColor: '#D4AF37',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 10
+    borderRadius: 14,
+    marginTop: 25
   },
 
-  buttonSecondary: {
-    backgroundColor: '#00AEEF',
+  secondaryButton: {
+    backgroundColor: '#A30D11',
     padding: 16,
-    borderRadius: 12
+    borderRadius: 14,
+    marginTop: 15
   },
 
   buttonText: {
